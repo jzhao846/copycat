@@ -113,7 +113,13 @@ var save = (image, format, save) => {
         // jpeg is not supported on write, though the encoding is preserved
         'image/png': new Blob([new Uint8Array(array)], {type: 'image/png'})
       })
-    ])
+    ]).then(() => {
+      alert([
+        'Screenshot Capture:',
+        'Binary Image',
+        'Saved to Clipboard!'
+      ].join('\n'))
+    })
   }
 }
 
