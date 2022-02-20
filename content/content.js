@@ -88,6 +88,21 @@ var filename = (format) => {
 
 var save = (image, format, save) => {
   if (save === 'file') {
+    var link = document.createElement('a')
+    link.download = filename(format)
+    link.href = image
+    link.click()
+  }
+  else if (save === 'url') {
+    navigator.clipboard.writeText(image).then(() => {
+      alert([
+        'Screenshot Capture:',
+        'Data URL String',
+        'Saved to Clipboard!'
+      ].join('\n'))
+    })
+  }
+  else if (save === 'binary') {
     var [header, base64] = image.split(',')
     var [_, type] = /data:(.*);base64/.exec(header)
     var binary = atob(base64)
