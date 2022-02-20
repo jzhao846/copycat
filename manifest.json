@@ -1,0 +1,23 @@
+{
+    "name": "Copycat",
+    "description": "Screenshots image and converts that to text",
+    "version": "1.0",
+    "manifest_version": 2,
+    "permissions": [
+        "desktopCapture",
+        "tabs",
+        "clipboardRead",
+        "clipboardWrite"
+    ],
+    "icons": {
+        "16": "/images/icon16.jpg",
+        "48": "/images/icon48.jpg",
+        "128": "/images/icon128.jpg"
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ]
+}
