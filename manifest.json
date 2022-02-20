@@ -1,23 +1,46 @@
 {
-    "name": "Copycat",
-    "description": "Screenshots image and converts that to text",
-    "version": "1.0",
-    "manifest_version": 2,
-    "permissions": [
-        "desktopCapture",
-        "tabs",
-        "clipboardRead",
-        "clipboardWrite"
-    ],
-    "icons": {
-        "16": "/images/icon16.jpg",
-        "48": "/images/icon48.jpg",
-        "128": "/images/icon128.jpg"
+  "manifest_version": 2,
+  "name"            : "Copycat2",
+  "version"         : "1.0",
+  "description"     : "Screenshot Capture",
+
+  "browser_action": {
+    "default_icon": {
+      "16" : "/images/icon16.jpg",
+      "48" : "/images/icon48.jpg"
     },
-    "content_scripts": [
-        {
-            "matches": ["<all_urls>"],
-            "js": ["content.js"]
-        }
-    ]
+    "default_title": "Screenshot Capture"
+  },
+
+  "background" : {
+    "scripts": [
+      "background/background.js"
+    ],
+    "persistent": false
+  },
+
+  "web_accessible_resources": [
+    "/images/Jcrop.gif",
+    "/images/pixel.png"
+  ],
+
+  "commands": {
+    "take-screenshot": {
+      "suggested_key": {
+        "default": "Alt+S"
+      },
+      "description": "Take Screenshot"
+    }
+  },
+
+  "icons": {
+    "16"  : "images/icon16.jpg",
+    "48"  : "images/icon48.jpg",
+    "128" : "images/icon128.jpg"
+  },
+
+  "permissions": [
+    "storage",
+    "activeTab"
+  ]
 }
