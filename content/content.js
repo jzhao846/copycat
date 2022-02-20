@@ -83,7 +83,7 @@ var filename = (format) => {
     [pad(now.getFullYear()), pad(now.getMonth() + 1), pad(now.getDate())].join('-')
     + ' - ' +
     [pad(now.getHours()), pad(now.getMinutes()), pad(now.getSeconds())].join('-')
-  return `Screenshot Capture - ${timestamp(new Date())}.${ext(format)}`
+  return `image.jpg`
 }
 
 var save = (image, format, save) => {
