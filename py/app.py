@@ -35,7 +35,10 @@ def ocr(img):
 
         text = pytesseract.image_to_string(cropped)
         full_text = full_text + text
+    return full_text
         
 @app.route('/')
 def pipeline(imgpath):
 	return ocr(process_image(imgpath))
+
+print(pipeline("file path here"))
