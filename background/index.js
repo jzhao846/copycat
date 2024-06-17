@@ -50,9 +50,9 @@ function inject (tab) {
 
     chrome.scripting.executeScript({files: ['vendor/jquery.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['vendor/jquery.Jcrop.min.js'], target: {tabId: tab.id}})
+    chrome.scripting.executeScript({files: ['vendor/tesseract.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/crop.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/index.js'], target: {tabId: tab.id}})
-
     setTimeout(() => {
       chrome.tabs.sendMessage(tab.id, {message: 'init'})
     }, 100)
@@ -82,27 +82,29 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
   }
   else if (req.message === 'active') {
     if (req.active) {
-      chrome.storage.sync.get((config) => {
-        if (config.method === 'crop') {
-          chrome.action.setTitle({tabId: sender.tab.id, title: 'Crop and Save'})
-          chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
-        }
-        else if (config.method === 'wait') {
-          chrome.action.setTitle({tabId: sender.tab.id, title: 'Crop and Wait'})
-          chrome.action.setBadgeText({tabId: sender.tab.id, text: '◪'})
-        }
-        else if (config.method === 'view') {
-          chrome.action.setTitle({tabId: sender.tab.id, title: 'Capture Viewport'})
-          chrome.action.setBadgeText({tabId: sender.tab.id, text: '⬒'})
-        }
-        else if (config.method === 'page') {
-          chrome.action.setTitle({tabId: sender.tab.id, title: 'Capture Document'})
-          chrome.action.setBadgeText({tabId: sender.tab.id, text: '◼'})
-        }
-      })
+      chrome.action.setTitle({tabId: sender.tab.id, title: 'Extract Text'})
+      chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
+      // chrome.storage.sync.get((config) => {
+      //   if (config.method === 'crop') {
+      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Crop and Save'})
+      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
+      //   }
+      //   else if (config.method === 'wait') {
+      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Crop and Wait'})
+      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '◪'})
+      //   }
+      //   else if (config.method === 'view') {
+      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Capture Viewport'})
+      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '⬒'})
+      //   }
+      //   else if (config.method === 'page') {
+      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Capture Document'})
+      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '◼'})
+      //   }
+      // })
     }
     else {
-      chrome.action.setTitle({tabId: sender.tab.id, title: 'Screenshot Capture'})
+      chrome.action.setTitle({tabId: sender.tab.id, title: 'Copycat'})
       chrome.action.setBadgeText({tabId: sender.tab.id, text: ''})
     }
   }
