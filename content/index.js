@@ -1,4 +1,3 @@
-
 var jcrop, selection
 
 var overlay = ((active) => (state) => {
@@ -146,47 +145,65 @@ var filename = (format) => {
   return `Screenshot Capture - ${timestamp(new Date())}.${ext(format)}`
 }
 
+async function performOCR(image) {
+  const worker = await Tesseract.createWorker("eng", 1, {
+    workerPath: chrome.runtime.getURL("vendor/tesseract.js@v5.0.4_dist_worker.min.js"),
+    corePath: chrome.runtime.getURL("vendor/"),
+    langPath: chrome.runtime.getURL("vendor/languages/"),
+  });
+  await worker.setParameters({
+    preserve_interword_spaces: "1",
+  });
+  const { data: { text } } = await worker.recognize(image);
+  navigator.clipboard.writeText(text).then(() => {
+    alert([
+      'Copycat:',
+      'Image text',
+      'Saved to Clipboard!'
+    ].join('\n'))
+  })
+}
+
 var save = (image, format, save, clipboard, dialog) => {
-  if (save.includes('file')) {
-    var link = document.createElement('a')
-    link.download = filename(format)
-    link.href = image
-    link.click()
-  }
-  if (save.includes('clipboard')) {
-    if (clipboard === 'url') {
-      navigator.clipboard.writeText(image).then(() => {
-        if (dialog) {
-          alert([
-            'Screenshot Capture:',
-            'Data URL String',
-            'Saved to Clipboard!'
-          ].join('\n'))
-        }
-      })
-    }
-    else if (clipboard === 'binary') {
-      var [header, base64] = image.split(',')
-      var [_, type] = /data:(.*);base64/.exec(header)
-      var binary = atob(base64)
-      var array = Array.from({length: binary.length})
-        .map((_, index) => binary.charCodeAt(index))
-      navigator.clipboard.write([
-        new ClipboardItem({
-          // jpeg is not supported on write, though the encoding is preserved
-          'image/png': new Blob([new Uint8Array(array)], {type: 'image/png'})
-        })
-      ]).then(() => {
-        if (dialog) {
-          alert([
-            'Screenshot Capture:',
-            'Binary Image',
-            'Saved to Clipboard!'
-          ].join('\n'))
-        }
-      })
-    }
-  }
+  performOCR(image)
+
+  // if (save.includes('file')) {
+    
+  // }
+  // if (save.includes('clipboard')) {
+  //   if (clipboard === 'url') {
+  //     navigator.clipboard.writeText(image).then(() => {
+  //       if (dialog) {
+  //         alert([
+  //           'Screenshot Capture:',
+  //           'Data URL String',
+  //           'Saved to Clipboard!'
+  //         ].join('\n'))
+  //       }
+  //     })
+  //   }
+  //   else if (clipboard === 'binary') {
+  //     var [header, base64] = image.split(',')
+  //     var [_, type] = /data:(.*);base64/.exec(header)
+  //     var binary = atob(base64)
+  //     var array = Array.from({length: binary.length})
+  //       .map((_, index) => binary.charCodeAt(index))
+  //     navigator.clipboard.write([
+  //       new ClipboardItem({
+  //         // jpeg is not supported on write, though the encoding is preserved
+  //         'image/png': new Blob([new Uint8Array(array)], {type: 'image/png'})
+  //       })
+  //     ]).then(() => {
+  //       if (dialog) {
+  //         alert([
+  //           'Screenshot Capture:',
+  //           'Binary Image',
+  //           'Saved to Clipboard!'
+  //         ].join('\n'))
+  //       }
+  //     })
+  //   }
+  // }
 }
 
 window.addEventListener('resize', ((timeout) => () => {

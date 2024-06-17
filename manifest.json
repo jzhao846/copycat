@@ -1,17 +1,15 @@
 {
   "manifest_version": 3,
-  "name"            : "Screenshot Capture",
-  "version"         : "3.1",
-  "description"     : "Capture viewport, crop & save to file, copy to clipboard as binary or data URL",
-
-  "homepage_url": "https://chromewebstore.google.com/detail/screenshot-capture/giabbpobpebjfegnpcclkocepcgockkc",
+  "name"            : "Copycat",
+  "version"         : "1.0",
+  "description"     : "Copycat",
 
   "icons": {
     "16" : "/icons/default/16x16.png",
     "19" : "/icons/default/19x19.png",
     "38" : "/icons/default/38x38.png",
     "48" : "/icons/default/48x48.png",
-    "128": "/icons/default/128x128.png"
+    "128" : "/icons/default/128x128.png"
   },
 
   "action": {
@@ -22,7 +20,7 @@
       "48" : "/icons/default/48x48.png",
       "128" : "/icons/default/128x128.png"
     },
-    "default_title": "Screenshot Capture"
+    "default_title": "Copycat"
   },
 
   "background" : {
@@ -38,14 +36,15 @@
       ],
       "resources": [
         "/vendor/Jcrop.gif",
-        "/content/pixel.png"
+        "/content/pixel.png",
+        "vendor/*"
       ]
     }
   ],
 
   "commands": {
     "take-screenshot": {
-      "description": "Take Screenshot",
+      "description": "Extract text",
       "suggested_key": {
         "default": "Alt+S"
       }
