@@ -1,42 +1,3 @@
-
-// chrome.storage.sync.clear()
-
-var defaults = {
-  method: 'crop',
-  format: 'png',
-  quality: 100,
-  scaling: true,
-  save: ['file'],
-  clipboard: 'url',
-  dialog: true,
-  icon: 'default',
-}
-
-chrome.storage.sync.get((store) => {
-  var config = {}
-  Object.assign(config, defaults, JSON.parse(JSON.stringify(store)))
-  // v3.0 -> v3.1
-  if (typeof config.save === 'string') {
-    config.clipboard = /url|binary/.test(config.save) ? config.save : 'url'
-    config.save = /url|binary/.test(config.save) ? ['clipboard'] : ['file']
-  }
-  if (config.dpr !== undefined) {
-    config.scaling = config.dpr
-    delete config.dpr
-  }
-  if (typeof config.icon === 'boolean') {
-    config.icon = config.icon === false ? 'default' : 'light'
-  }
-  chrome.storage.sync.set(config)
-
-  chrome.action.setIcon({
-    path: [16, 19, 38, 48, 128].reduce((all, size) => (
-      all[size] = `/icons/${config.icon}/${size}x${size}.png`,
-      all
-    ), {})
-  })
-})
-
 function inject (tab) {
   chrome.tabs.sendMessage(tab.id, {message: 'init'}, (res) => {
     if (res) {
@@ -84,24 +45,6 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     if (req.active) {
       chrome.action.setTitle({tabId: sender.tab.id, title: 'Extract Text'})
       chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
-      // chrome.storage.sync.get((config) => {
-      //   if (config.method === 'crop') {
-      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Crop and Save'})
-      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
-      //   }
-      //   else if (config.method === 'wait') {
-      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Crop and Wait'})
-      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '◪'})
-      //   }
-      //   else if (config.method === 'view') {
-      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Capture Viewport'})
-      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '⬒'})
-      //   }
-      //   else if (config.method === 'page') {
-      //     chrome.action.setTitle({tabId: sender.tab.id, title: 'Capture Document'})
-      //     chrome.action.setBadgeText({tabId: sender.tab.id, text: '◼'})
-      //   }
-      // })
     }
     else {
       chrome.action.setTitle({tabId: sender.tab.id, title: 'Copycat'})

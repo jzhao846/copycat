@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name"            : "Copycat",
   "version"         : "1.0",
-  "description"     : "Copycat",
+  "description"     : "An easy way to copy image text",
 
   "icons": {
     "16" : "/icons/default/16x16.png",
@@ -26,8 +26,6 @@
   "background" : {
     "service_worker": "background/index.js"
   },
-
-  "options_page": "/options/index.html",
 
   "web_accessible_resources": [
     {
