@@ -50,102 +50,24 @@ var init = (done) => {
 }
 
 var capture = (force) => {
-  chrome.storage.sync.get((config) => {
-    if (selection && (config.method === 'crop' || (config.method === 'wait' && force))) {
-      jcrop.release()
-      setTimeout(() => {
-        var _selection = selection
-        chrome.runtime.sendMessage({
-          message: 'capture', format: config.format, quality: config.quality
-        }, (res) => {
-          overlay(false)
-          crop(res.image, _selection, devicePixelRatio, config.scaling, config.format, (image) => {
-            save(image, config.format, config.save, config.clipboard, config.dialog)
-            selection = null
-          })
-        })
-      }, 50)
-    }
-    else if (config.method === 'view') {
+  if (selection) {
+    jcrop.release()
+    setTimeout(() => {
+      var _selection = selection
       chrome.runtime.sendMessage({
-        message: 'capture', format: config.format, quality: config.quality
+        message: 'capture', format: 'png', quality: 100
       }, (res) => {
         overlay(false)
-        if (devicePixelRatio !== 1 && !config.scaling) {
-          var area = {x: 0, y: 0, w: innerWidth, h: innerHeight}
-          crop(res.image, area, devicePixelRatio, config.scaling, config.format, (image) => {
-            save(image, config.format, config.save, config.clipboard, config.dialog)
-          })
-        }
-        else {
-          save(res.image, config.format, config.save, config.clipboard, config.dialog)
-        }
-      })
-    }
-    else if (config.method === 'page') {
-      var container = ((html = document.querySelector('html')) => (
-        html.scrollTop = 1,
-        html.scrollTop ? (html.scrollTop = 0, html) : document.querySelector('body')
-      ))()
-      container.scrollTop = 0
-      document.querySelector('html').style.overflow = 'hidden'
-      document.querySelector('body').style.overflow = 'hidden'
-      setTimeout(() => {
-        var images = []
-        var count = 0
-        ;(function scroll (done) {
-          chrome.runtime.sendMessage({
-            message: 'capture', format: config.format, quality: config.quality
-          }, (res) => {
-            var height = innerHeight
-            if (count * innerHeight > container.scrollTop) {
-              height = container.scrollTop - (count - 1) * innerHeight
-            }
-            images.push({height, offset: container.scrollTop, image: res.image})
-
-            if (
-              (count * innerHeight === container.scrollTop &&
-              (count - 1) * innerHeight === container.scrollTop) ||
-              count * innerHeight > container.scrollTop
-              ) {
-              done()
-              return
-            }
-
-            count += 1
-            container.scrollTop = count * innerHeight
-            setTimeout(() => {
-              if (count * innerHeight !== container.scrollTop) {
-                container.scrollTop = count * innerHeight
-              }
-              scroll(done)
-            }, config.delay)
-          })
-        })(() => {
-          overlay(false)
-          var area = {x: 0, y: 0, w: innerWidth, h: images.reduce((all, {height}) => all += height, 0)}
-          crop(images, area, devicePixelRatio, config.scaling, config.format, (image) => {
-            document.querySelector('html').style.overflow = ''
-            document.querySelector('body').style.overflow = ''
-            save(image, config.format, config.save, config.clipboard, config.dialog)
-          })
+        crop(res.image, _selection, devicePixelRatio, true, 'png', (image) => {
+          copy(image)
+          selection = null
         })
-      }, config.delay)
-    }
-  })
+      })
+    }, 50)
+  }
 }
 
-var filename = (format) => {
-  var pad = (n) => (n = n + '', n.length >= 2 ? n : `0${n}`)
-  var ext = (format) => format === 'jpeg' ? 'jpg' : format === 'png' ? 'png' : 'png'
-  var timestamp = (now) =>
-    [pad(now.getFullYear()), pad(now.getMonth() + 1), pad(now.getDate())].join('-')
-    + ' - ' +
-    [pad(now.getHours()), pad(now.getMinutes()), pad(now.getSeconds())].join('-')
-  return `Screenshot Capture - ${timestamp(new Date())}.${ext(format)}`
-}
-
-async function performOCR(image) {
+var copy = async (image) => {
   const worker = await Tesseract.createWorker("eng", 1, {
     workerPath: chrome.runtime.getURL("vendor/tesseract.js@v5.0.4_dist_worker.min.js"),
     corePath: chrome.runtime.getURL("vendor/"),
@@ -155,55 +77,7 @@ async function performOCR(image) {
     preserve_interword_spaces: "1",
   });
   const { data: { text } } = await worker.recognize(image);
-  navigator.clipboard.writeText(text).then(() => {
-    alert([
-      'Copycat:',
-      'Image text',
-      'Saved to Clipboard!'
-    ].join('\n'))
-  })
-}
-
-var save = (image, format, save, clipboard, dialog) => {
-  performOCR(image)
-
-  // if (save.includes('file')) {
-    
-  // }
-  // if (save.includes('clipboard')) {
-  //   if (clipboard === 'url') {
-  //     navigator.clipboard.writeText(image).then(() => {
-  //       if (dialog) {
-  //         alert([
-  //           'Screenshot Capture:',
-  //           'Data URL String',
-  //           'Saved to Clipboard!'
-  //         ].join('\n'))
-  //       }
-  //     })
-  //   }
-  //   else if (clipboard === 'binary') {
-  //     var [header, base64] = image.split(',')
-  //     var [_, type] = /data:(.*);base64/.exec(header)
-  //     var binary = atob(base64)
-  //     var array = Array.from({length: binary.length})
-  //       .map((_, index) => binary.charCodeAt(index))
-  //     navigator.clipboard.write([
-  //       new ClipboardItem({
-  //         // jpeg is not supported on write, though the encoding is preserved
-  //         'image/png': new Blob([new Uint8Array(array)], {type: 'image/png'})
-  //       })
-  //     ]).then(() => {
-  //       if (dialog) {
-  //         alert([
-  //           'Screenshot Capture:',
-  //           'Binary Image',
-  //           'Saved to Clipboard!'
-  //         ].join('\n'))
-  //       }
-  //     })
-  //   }
-  // }
+  navigator.clipboard.writeText(text)
 }
 
 window.addEventListener('resize', ((timeout) => () => {
@@ -217,7 +91,6 @@ window.addEventListener('resize', ((timeout) => () => {
 chrome.runtime.onMessage.addListener((req, sender, res) => {
   if (req.message === 'init') {
     res({}) // prevent re-injecting
-
     if (!jcrop) {
       image(() => init(() => {
         overlay()
