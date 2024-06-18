@@ -35,10 +35,14 @@
       "resources": [
         "/vendor/Jcrop.gif",
         "/content/pixel.png",
-        "/vendor/tesseract*"
+        "/vendor/tesseractjs/*"
       ]
     }
   ],
+
+  "content_security_policy": {
+		"extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self';"
+	},
 
   "commands": {
     "take-screenshot": {

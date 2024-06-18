@@ -49,7 +49,7 @@ var init = (done) => {
   })
 }
 
-var capture = (force) => {
+var capture = () => {
   if (selection) {
     jcrop.release()
     setTimeout(() => {
@@ -69,15 +69,16 @@ var capture = (force) => {
 
 var copy = async (image) => {
   const worker = await Tesseract.createWorker("eng", 1, {
-    workerPath: chrome.runtime.getURL("vendor/tesseract.js@v5.0.4_dist_worker.min.js"),
-    corePath: chrome.runtime.getURL("vendor/"),
-    langPath: chrome.runtime.getURL("vendor/languages/"),
+    workerPath: chrome.runtime.getURL("vendor/tesseractjs/tesseract.js@v5.0.4_dist_worker.min.js"),
+    corePath: chrome.runtime.getURL("vendor/tesseractjs/"),
+    langPath: chrome.runtime.getURL("vendor/tesseractjs/languages/")
   });
   await worker.setParameters({
     preserve_interword_spaces: "1",
   });
   const { data: { text } } = await worker.recognize(image);
   navigator.clipboard.writeText(text)
+  await worker.terminate()
 }
 
 window.addEventListener('resize', ((timeout) => () => {
@@ -99,7 +100,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
     }
     else {
       overlay()
-      capture(true)
+      capture()
     }
   }
   return true
