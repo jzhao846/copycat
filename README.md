@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/icon128.png">
+  <img src="icons/icon128.png">
 </p>
 
 # CopyCat
