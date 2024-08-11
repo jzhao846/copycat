@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
 });
 
 async function performOCR(image) {
-  const worker = await Tesseract.createWorker("eng", 1, {
+  const worker = await Tesseract.createWorker('eng', 1, {
     workerPath: chrome.runtime.getURL('vendor/tesseractjs/tesseract.js@v5.0.4_dist_worker.min.js'),
     corePath: chrome.runtime.getURL('vendor/tesseractjs/'),
     langPath: chrome.runtime.getURL('vendor/tesseractjs/languages/'),

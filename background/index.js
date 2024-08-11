@@ -11,7 +11,6 @@ function inject (tab) {
 
     chrome.scripting.executeScript({files: ['vendor/jquery.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['vendor/jquery.Jcrop.min.js'], target: {tabId: tab.id}})
-    chrome.scripting.executeScript({files: ['vendor/tesseractjs/tesseract.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/crop.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/index.js'], target: {tabId: tab.id}})
     setTimeout(() => {
@@ -22,12 +21,10 @@ function inject (tab) {
 
 async function createOffscreen() {
   if (await chrome.offscreen.hasDocument()) return
-  chrome.action.onClicked.addListener(async () => {
-    await chrome.offscreen.createDocument({
-      url: 'content/offscreen.html',
-      reasons: ['WORKERS'],
-      justification: "Perform OCR"
-    })
+  await chrome.offscreen.createDocument({
+    url: 'content/offscreen.html',
+    reasons: ['WORKERS'],
+    justification: "Perform OCR"
   })
 }
 
@@ -44,33 +41,38 @@ chrome.commands.onCommand.addListener((command) => {
 })
 
 chrome.runtime.onMessage.addListener((req, sender, res) => {
-  if (req.message === 'capture') {
-    chrome.tabs.query({active: true, currentWindow: true}, (tab) => {
-      chrome.tabs.captureVisibleTab(tab.windowId, {format: req.format, quality: req.quality}, (image) => {
-        // image is base64
-        res({message: 'image', image})
+  switch (req.message) {
+    case 'capture':
+      chrome.tabs.query({active: true, currentWindow: true}, (tab) => {
+        chrome.tabs.captureVisibleTab(tab.windowId, {format: req.format, quality: req.quality}, (image) => {
+          // image is base64
+          res({message: 'image', image})
+        })
       })
-    })
+      break
+    case 'active':
+      if (req.active) {
+        chrome.action.setTitle({tabId: sender.tab.id, title: 'Extract Text'})
+        chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
+      }
+      else {
+        chrome.action.setTitle({tabId: sender.tab.id, title: 'Copycat'})
+        chrome.action.setBadgeText({tabId: sender.tab.id, text: ''})
+      }
+      break
+    case 'analyze':
+      (async () => {
+        await createOffscreen()
+        chrome.runtime.sendMessage({
+          message: 'analyze', image: req.image, offscreen: true
+        }, (text) => {
+          res(text)
+        })
+      })()
+      break
+    default:
+      console.warn(`Unexpected message type received: '${req.message}'.`)
   }
-  else if (req.message === 'active') {
-    if (req.active) {
-      chrome.action.setTitle({tabId: sender.tab.id, title: 'Extract Text'})
-      chrome.action.setBadgeText({tabId: sender.tab.id, text: '◩'})
-    }
-    else {
-      chrome.action.setTitle({tabId: sender.tab.id, title: 'Copycat'})
-      chrome.action.setBadgeText({tabId: sender.tab.id, text: ''})
-    }
-  }
-  else if (req.message === 'analyze') {
-    (async () => {
-      await createOffscreen()
-      chrome.runtime.sendMessage({
-        message: 'analyze', image: req.image, offscreen: true
-      }, (text) => {
-        res(text)
-      })
-    })()
-  }
+
   return true
 })

@@ -5,20 +5,20 @@
   "description"     : "An easy way to copy image text",
 
   "icons": {
-    "16" : "/icons/default/16x16.png",
-    "19" : "/icons/default/19x19.png",
-    "38" : "/icons/default/38x38.png",
-    "48" : "/icons/default/48x48.png",
-    "128" : "/icons/default/128x128.png"
+    "16" : "/icons/16x16.png",
+    "19" : "/icons/19x19.png",
+    "38" : "/icons/38x38.png",
+    "48" : "/icons/48x48.png",
+    "128" : "/icons/128x128.png"
   },
 
   "action": {
     "default_icon": {
-      "16" : "/icons/default/16x16.png",
-      "19" : "/icons/default/19x19.png",
-      "38" : "/icons/default/38x38.png",
-      "48" : "/icons/default/48x48.png",
-      "128" : "/icons/default/128x128.png"
+      "16" : "/icons/16x16.png",
+      "19" : "/icons/19x19.png",
+      "38" : "/icons/38x38.png",
+      "48" : "/icons/48x48.png",
+      "128" : "/icons/128x128.png"
     },
     "default_title": "Copycat"
   },
