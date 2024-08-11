@@ -54,7 +54,8 @@
   },
 
   "permissions": [
-    "storage",
+    "clipboardWrite",
+    "offscreen",
     "scripting",
     "activeTab"
   ]

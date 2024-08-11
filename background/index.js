@@ -11,13 +11,24 @@ function inject (tab) {
 
     chrome.scripting.executeScript({files: ['vendor/jquery.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['vendor/jquery.Jcrop.min.js'], target: {tabId: tab.id}})
-    chrome.scripting.executeScript({files: ['vendor/tesseract.min.js'], target: {tabId: tab.id}})
+    chrome.scripting.executeScript({files: ['vendor/tesseractjs/tesseract.min.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/crop.js'], target: {tabId: tab.id}})
     chrome.scripting.executeScript({files: ['content/index.js'], target: {tabId: tab.id}})
     setTimeout(() => {
       chrome.tabs.sendMessage(tab.id, {message: 'init'})
     }, 100)
   }, 100)
+}
+
+async function createOffscreen() {
+  if (await chrome.offscreen.hasDocument()) return
+  chrome.action.onClicked.addListener(async () => {
+    await chrome.offscreen.createDocument({
+      url: 'content/offscreen.html',
+      reasons: ['WORKERS'],
+      justification: "Perform OCR"
+    })
+  })
 }
 
 chrome.action.onClicked.addListener((tab) => {
@@ -50,6 +61,16 @@ chrome.runtime.onMessage.addListener((req, sender, res) => {
       chrome.action.setTitle({tabId: sender.tab.id, title: 'Copycat'})
       chrome.action.setBadgeText({tabId: sender.tab.id, text: ''})
     }
+  }
+  else if (req.message === 'analyze') {
+    (async () => {
+      await createOffscreen()
+      chrome.runtime.sendMessage({
+        message: 'analyze', image: req.image, offscreen: true
+      }, (text) => {
+        res(text)
+      })
+    })()
   }
   return true
 })

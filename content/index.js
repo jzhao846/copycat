@@ -68,17 +68,11 @@ var capture = () => {
 }
 
 var copy = async (image) => {
-  const worker = await Tesseract.createWorker("eng", 1, {
-    workerPath: chrome.runtime.getURL("vendor/tesseractjs/tesseract.js@v5.0.4_dist_worker.min.js"),
-    corePath: chrome.runtime.getURL("vendor/tesseractjs/"),
-    langPath: chrome.runtime.getURL("vendor/tesseractjs/languages/")
-  });
-  await worker.setParameters({
-    preserve_interword_spaces: "1",
-  });
-  const { data: { text } } = await worker.recognize(image);
-  navigator.clipboard.writeText(text)
-  await worker.terminate()
+  chrome.runtime.sendMessage({
+    message: "analyze", image: image
+  }, (text) => {
+    navigator.clipboard.writeText(text)
+  })
 }
 
 window.addEventListener('resize', ((timeout) => () => {
